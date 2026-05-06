@@ -13,6 +13,7 @@
 # limitations under the License.
 
 URL = {
+    "protenix-v2": "https://protenix.tos-cn-beijing.volces.com/checkpoint/protenix-v2.pt",
     "protenix_base_default_v0.5.0": "https://af3-dev.tos-cn-beijing.volces.com/release_model/protenix_base_default_v0.5.0.pt",
     "protenix_base_constraint_v0.5.0": "https://af3-dev.tos-cn-beijing.volces.com/release_model/protenix_base_constraint_v0.5.0.pt",
     "protenix_mini_default_v0.5.0": "https://af3-dev.tos-cn-beijing.volces.com/release_model/protenix_mini_default_v0.5.0.pt",

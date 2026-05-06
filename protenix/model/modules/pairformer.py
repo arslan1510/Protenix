@@ -59,6 +59,7 @@ class PairformerBlock(nn.Module):
         c_hidden_pair_att: int = 32,
         no_heads_pair: int = 4,
         dropout: float = 0.25,
+        hidden_scale_up: bool = False,
     ) -> None:
         """
         Args:
@@ -73,6 +74,9 @@ class PairformerBlock(nn.Module):
         """
         super(PairformerBlock, self).__init__()
         self.n_heads = n_heads
+        if hidden_scale_up:
+            no_heads_pair = c_z // c_hidden_pair_att
+            c_hidden_mul = c_z
         self.tri_mul_out = TriangleMultiplicationOutgoing(
             c_z=c_z, c_hidden=c_hidden_mul
         )
@@ -227,6 +231,7 @@ class PairformerStack(nn.Module):
         c_s: int = 384,
         dropout: float = 0.25,
         blocks_per_ckpt: Optional[int] = None,
+        hidden_scale_up: bool = False,
     ) -> None:
         """
         Args:
@@ -247,7 +252,13 @@ class PairformerStack(nn.Module):
         self.blocks = nn.ModuleList()
 
         for _ in range(n_blocks):
-            block = PairformerBlock(n_heads=n_heads, c_z=c_z, c_s=c_s, dropout=dropout)
+            block = PairformerBlock(
+                n_heads=n_heads,
+                c_z=c_z,
+                c_s=c_s,
+                dropout=dropout,
+                hidden_scale_up=hidden_scale_up,
+            )
             self.blocks.append(block)
 
     def _prep_blocks(
@@ -560,6 +571,7 @@ class MSABlock(nn.Module):
         pair_dropout: float = 0.25,
         msa_chunk_size: Optional[int] = 2048,
         msa_max_size: Optional[int] = 16384,
+        hidden_scale_up: bool = False,
     ) -> None:
         """
         Args:
@@ -588,7 +600,12 @@ class MSABlock(nn.Module):
                 msa_max_size=msa_max_size,
             )
         # Pair stack
-        self.pair_stack = PairformerBlock(c_z=c_z, c_s=0, dropout=pair_dropout)
+        self.pair_stack = PairformerBlock(
+            c_z=c_z,
+            c_s=0,
+            dropout=pair_dropout,
+            hidden_scale_up=hidden_scale_up,
+        )
 
     def forward(
         self,
@@ -658,6 +675,7 @@ class MSAModule(nn.Module):
         msa_chunk_size: Optional[int] = 2048,
         msa_max_size: Optional[int] = 16384,
         msa_configs: dict = None,
+        hidden_scale_up: bool = False,
     ) -> None:
         """Main Entry of MSAModule
 
@@ -724,6 +742,7 @@ class MSAModule(nn.Module):
                 pair_dropout=pair_dropout,
                 msa_chunk_size=self.msa_chunk_size,
                 msa_max_size=self.msa_max_size,
+                hidden_scale_up=hidden_scale_up,
             )
             self.blocks.append(block)
 
@@ -886,6 +905,7 @@ class TemplateEmbedder(nn.Module):
         c_z: int = 128,
         dropout: float = 0.25,
         blocks_per_ckpt: Optional[int] = None,
+        hidden_scale_up: bool = False,
     ) -> None:
         """
         Args:
@@ -929,6 +949,7 @@ class TemplateEmbedder(nn.Module):
             n_blocks=self.n_blocks,
             dropout=dropout,
             blocks_per_ckpt=blocks_per_ckpt,
+            hidden_scale_up=hidden_scale_up,
         )
         self.layernorm_v = LayerNorm(self.c)
         self.linear_no_bias_u = LinearNoBias(in_features=self.c, out_features=self.c_z)

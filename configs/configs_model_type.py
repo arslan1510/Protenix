@@ -30,8 +30,46 @@ Currently, the model_name support the following models.
 | `protenix_mini_ism_v0.5.0`          |      ✅ / ✅ / ❌         |         135.22       |
 | `protenix_mini_default_v0.5.0`      |      ❌ / ✅ / ❌         |         134.06       |
 | `protenix_tiny_default_v0.5.0`      |      ❌ / ✅ / ❌         |         109.50       |
+| `protenix-v2`                       |      ❌ / ✅ / ❌         |         464.44       |
 """
 model_configs = {
+    "protenix-v2": {
+        "c_z": 256,
+        "diffusion_batch_size": 64,
+        "model": {
+            "N_cycle": 10,
+            "relative_position_encoding": {
+                "c_z": 256,
+            },
+            "template_embedder": {
+                "c_z": 256,
+                "n_blocks": 2,
+                "hidden_scale_up": True,
+            },
+            "msa_module": {
+                "c_m": 128,
+                "c_z": 256,
+                "hidden_scale_up": True,
+            },
+            "pairformer": {
+                "c_z": 256,
+                "hidden_scale_up": True,
+            },
+            "diffusion_module": {
+                "c_z": 256,
+            },
+            "confidence_head": {
+                "c_z": 256,
+                "hidden_scale_up": True,
+            },
+            "distogram_head": {
+                "c_z": 256,
+            },
+        },
+        "sample_diffusion": {
+            "N_step": 200,
+        },
+    },
     "protenix_base_default_v0.5.0": {
         "model": {"N_cycle": 10},
         "sample_diffusion": {
